@@ -9,7 +9,7 @@
         <unpackNestedArchives>false</unpackNestedArchives>
       </options>
     </properties>
-    <root id="archive" name="picuang-0.0.1-SNAPSHOT.war">
+    <root id="archive" name="picuang-0.0.1.war">
       <element id="artifact" artifact-name="picuang:war exploded" />
     </root>
   </artifact>

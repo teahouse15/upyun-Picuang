@@ -60,6 +60,8 @@ public class UploadController {
             result.setMsg("Admin only upload.");
             return result;
         }
+
+
         return upload(file, request);
     }
 
