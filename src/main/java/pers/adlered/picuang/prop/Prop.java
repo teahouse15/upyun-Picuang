@@ -45,6 +45,9 @@ public class Prop {
             properties.put("adminOnly", "off");
             properties.put("uploadLimit", "1:1");
             properties.put("cloneLimit", "3:1");
+            properties.put("bucketName", "");
+            properties.put("userName", "");
+            properties.put("userPasswd", "");
             try {
                 properties.store(new BufferedOutputStream(new FileOutputStream("config.ini")), "Save Configs File.");
             } catch (FileNotFoundException FNFE) {

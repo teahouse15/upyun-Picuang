@@ -112,8 +112,7 @@ function responseHandler(response) {
     switch (code) {
         case 200:
             filename = response.data.data;
-            fullLocation = location.origin + msg;
-            appendLink(fullLocation, "<img alt=\"" + filename + "\" src=\"" + fullLocation + "\">", "![" + filename + "](" + fullLocation + ")");
+            appendLink(fullLocation, "<img alt=\"" + filename + "\" src=\"" + fullLocation + "\">", "![" + filename + "](" + msg + ")");
             $("#links").css("display", "block");
             break;
         case 406:

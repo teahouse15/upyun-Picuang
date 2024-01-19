@@ -1,5 +1,10 @@
 package pers.adlered.picuang.controller;
 
+import com.upyun.Params;
+import com.upyun.RestManager;
+import com.upyun.UpException;
+import okhttp3.Response;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +24,10 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,34 +98,49 @@ public class UploadController {
             String suffixName = ToolBox.getSuffixName(filename);
             Logger.log("SuffixName: " + suffixName);
             if (ToolBox.isPic(suffixName)) {
-                String time = ToolBox.getDirByTime();
-                File dest = ToolBox.generatePicFile(suffixName, time, addr);
-                result.setData(filename);
-                filename = dest.getName();
-                Logger.log("Saving into " + dest.getAbsolutePath());
-                if (!dest.getParentFile().exists()) {
-                    dest.getParentFile().mkdirs();
-                }
+                // 上传
+
+                Map<String, String> paramsMap = new HashMap<String, String>();
                 try {
-                    file.transferTo(dest);
-                    String url = "/uploadImages/" + addr + "/" + time + filename;
-                    result.setCode(200);
-                    result.setMsg(url);
-                    int count = Integer.parseInt(Prop.get("imageUploadedCount"));
-                    ++count;
-                    Prop.set("imageUploadedCount", String.valueOf(count));
+
+                    String upyunFilename = RandomStringUtils.randomAlphanumeric(3) + "_pic" + suffixName;
+                    RestManager upyunRestManager = new RestManager(Prop.get("bucketName"), Prop.get("userName"), Prop.get("userPasswd"));
+                    upyunRestManager.setApiDomain(RestManager.ED_AUTO);
+
+                    // 获取当前日期 LocalDate.now().toString() 2021-05-26 [0]=2021 [1]=05 [2]=26
+                    String nowDate[] = LocalDate.now().toString().split("-");
+                    String dateDir = "/" + nowDate[0] + "/" + nowDate[1] + "-" + nowDate[2] + "/";
+                    if (!upyunRestManager.mkDir(dateDir).isSuccessful()) {
+                        Logger.log(Level.INFO + "Directory creation failed [path=" + dateDir + "]");
+                    }
+                    String filePath = dateDir + upyunFilename;
+
+                    Response response = upyunRestManager.writeFile(filePath, file.getInputStream(), paramsMap);
+                    // Response{protocol=http/1.1, code=200, message=OK, url=https://v0.api.upyun.com/image-myjinji/test.jpg}
+                    if (200 == response.code()) {
+                        result.setCode(200);
+                        result.setMsg(Prop.get("website") + "/" + filePath);
+                    }
+
+
+                } catch (IOException | UpException e) {
+                    result.setCode(500);
+                    result.setMsg("未知错误。");
                     return result;
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+
+                String time = ToolBox.getDirByTime();
+                result.setData(filename);
+//                Logger.log("Saving into " + dest.getAbsolutePath());
+                String url = "/uploadImages/" + addr + "/" + time + filename;
+                result.setCode(200);
+                result.setMsg(url);
+                return result;
             } else {
                 result.setCode(500);
                 result.setMsg("不是jpg/jpeg/png/svg/gif图片！");
                 return result;
             }
-            result.setCode(500);
-            result.setMsg("未知错误。");
-            return result;
         }
     }
 

@@ -15,6 +15,7 @@
           <element id="module-output" name="picuang" />
         </element>
         <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.11" />
           <element id="library" level="project" name="Maven: com.upyun:java-sdk:4.2.3" />
           <element id="library" level="project" name="Maven: junit:junit:4.12" />
           <element id="library" level="project" name="Maven: org.json:json:20160212" />
